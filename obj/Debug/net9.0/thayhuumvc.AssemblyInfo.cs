@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("thayhuumvc")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf9124c1390309ee7817fe7b9655fe003f43ac1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce2b6a3ba7c2b3d28d8a5c3d7657ec5668561911")]
 [assembly: System.Reflection.AssemblyProductAttribute("thayhuumvc")]
 [assembly: System.Reflection.AssemblyTitleAttribute("thayhuumvc")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
