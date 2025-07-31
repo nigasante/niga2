@@ -1,67 +1,52 @@
 pipeline {
- agent any
- 
- stages {
-	stage('clone'){
-		steps {
-			echo 'Cloning source code'
-			git branch:'main', url: 'https://github.com/nigasante/niga2.git'
-		}
-	} 
-    stage('restore package') {
-		steps
-		{
-			echo 'Restore package'
-			bat 'dotnet restore'
-		}
-	}
-    stage ('build') {
-		steps {
-			echo 'build project netcore'
-			bat 'dotnet build  --configuration Release'
-		}
-	}
-    stage ('tests') {
-		steps{
-			echo 'running test...'
-			bat 'dotnet test --no-build --verbosity normal'
-		}
-	}
-    stage ('public den t thu muc')
-	{
-		steps{
-			echo 'Publishing...'
-			bat 'dotnet publish -c Release -o ./publish'
-		}
-	}
-    stage ('Publish') {
-		steps {
-			echo 'public 2 runnig folder'
-		//iisreset /stop // stop iis de ghi de file 
-			bat 'xcopy "%WORKSPACE%\\publish" /E /Y /I /R "c:\\wwwroot\\myproject"'
- 		}
-	}
-    stage('Deploy to IIS') {
+    agent any
+
+    stages {
+        stage('Clone') {
+            steps {
+                echo 'Cloning source code...'
+                git branch: 'main', url: 'https://github.com/nigasante/niga2.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building Java project with Maven...'
+                bat 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                bat 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo 'Packaging application...'
+                bat 'mvn package'
+            }
+        }
+
+        stage('Deploy to Folder') {
+            steps {
+                echo 'Deploying build artifact to IIS folder...'
+                // Update path below based on your WAR/JAR location
+                bat 'xcopy "target\\*.jar" /Y /I "C:\\wwwroot\\myproject"'
+            }
+        }
+
+        stage('Deploy to IIS') {
             steps {
                 powershell '''
-               
-                # Tạo website nếu chưa có
                 Import-Module WebAdministration
-                if (-not (Test-Path IIS:\\Sites\\MySite)) {
-                    New-Website -Name "MySite" -Port 81 -PhysicalPath "c:\\test1-netcore"
+                if (-not (Test-Path IIS:\\Sites\\MyJavaApp)) {
+                    New-Website -Name "MyJavaApp" -Port 81 -PhysicalPath "C:\\wwwroot\\myproject"
                 }
                 '''
             }
-        } // end deploy 
-
-
-
-
-
-//helpmeplease
-//imunderthewater
-
-// end clone
-
-  } // end stages
-}//end pipeline
+        }
+    }
+}
