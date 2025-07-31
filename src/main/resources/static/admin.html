@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Newspaper App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: #2196F3;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #666;
+            color: white;
+        }
+        
+        .btn-edit {
+            background: #2196F3;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-delete {
+            background: #f44336;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .article-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .article-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .article-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .article-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .article-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .article-content-preview {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80%;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            background: #2196F3;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .checkbox-group {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Manage Articles</h1>
+            <div>
+                <button class="btn btn-primary" onclick="showArticleForm()">+ Add Article</button>
+                <a href="home.html" class="btn btn-secondary">← Back to Home</a>
+            </div>
+        </div>
+        
+        <div id="articlesContainer" class="loading">Loading...</div>
+    </div>
+
+    <!-- Article Form Modal -->
+    <div id="articleFormModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="formModalTitle">Add New Article</div>
+                <button class="close-btn" onclick="closeArticleForm()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="articleForm">
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" id="articleTitle" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Content *</label>
+                        <textarea id="articleContent" class="form-textarea" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Image</label>
+                        <input type="file" id="articleImageFile" class="form-input" accept="image/*">
+                        <div id="uploadStatus" style="margin-top:6px;font-size:13px;color:#007bff;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="articleStatus" class="form-select">
+                            <option value="Draft">Draft</option>
+                            <option value="Published">Published</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Categories *</label>
+                        <div id="categoriesCheckbox" class="checkbox-group">
+                            <!-- Categories will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeArticleForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cloudinary config (replace with your own values)
+        const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dgp3eebim/image/upload';
+        const CLOUDINARY_UPLOAD_PRESET = 'newsapi123';
+        const API_BASE_URL = '/api';
+        let currentUser = parseInt(localStorage.getItem('userID')) || 1; // Default to admin
+        let articles = [];
+        let categories = [];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArticles();
+            loadCategories();
+        });
+
+        async function loadArticles() {
+            document.getElementById('articlesContainer').innerHTML = '<div class="loading">Loading...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/articles`);
+                if (response.ok) {
+                    articles = await response.json();
+                    displayArticles();
+                } else {
+                    throw new Error('Failed to load articles');
+                }
+            } catch (error) {
+                document.getElementById('articlesContainer').innerHTML = 
+                    '<div class="loading">Unable to load article list: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                if (response.ok) {
+                    categories = await response.json();
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        function displayArticles() {
+            const container = document.getElementById('articlesContainer');
+            
+            if (articles.length === 0) {
+                container.innerHTML = '<div class="loading">No articles yet.</div>';
+                return;
+            }
+            
+            const articlesHtml = articles.map(article => `
+                <div class="article-card" style="display: flex; align-items: flex-start; gap: 20px;">
+                    ${article.imageUrl ? `<img src="${escapeHtml(article.imageUrl)}" alt="Article Image" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; background: #eee;">` : ''}
+                    <div style="flex: 1;">
+                        <div class="article-header">
+                            <div class="article-title">${escapeHtml(article.title)}</div>
+                            <div class="article-actions">
+                                <button class="btn btn-edit" onclick="editArticle(${article.articleID})">
+                                    ✏️ Edit
+                                </button>
+                                <button class="btn btn-delete" onclick="deleteArticle(${article.articleID})">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="article-meta">
+                            Status: <strong>${article.status}</strong> | 
+                            Created: ${formatDate(article.createdAt)} |
+                            Author: ${article.editorName || 'Unknown'}
+                        </div>
+                        <div class="article-content-preview">
+                            ${truncateText(escapeHtml(article.content).replace(/\n/g, '<br>'), 200)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `<div class="article-grid">${articlesHtml}</div>`;
+        }
+
+        function showArticleForm(article = null) {
+            const modal = document.getElementById('articleFormModal');
+            const title = document.getElementById('formModalTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Reset form
+            document.getElementById('articleForm').reset();
+            
+            if (article) {
+                title.textContent = 'Edit Article';
+                submitBtn.textContent = 'Update';
+                document.getElementById('articleTitle').value = article.title;
+                document.getElementById('articleContent').value = article.content;
+                document.getElementById('articleStatus').value = article.status;
+                document.getElementById('articleForm').dataset.articleId = article.articleID;
+            } else {
+                title.textContent = 'Add New Article';
+                submitBtn.textContent = 'Create';
+                delete document.getElementById('articleForm').dataset.articleId;
+            }
+            
+            loadCategoriesForForm();
+            modal.style.display = 'block';
+        }
+
+        function closeArticleForm() {
+            document.getElementById('articleFormModal').style.display = 'none';
+        }
+
+        async function loadCategoriesForForm() {
+            const container = document.getElementById('categoriesCheckbox');
+            
+            if (categories.length === 0) {
+                container.innerHTML = '<div>Không có danh mục nào.</div>';
+                return;
+            }
+            
+            const checkboxHtml = categories.map(category => `
+                <div class="checkbox-item">
+                    <input type="checkbox" id="cat_${category.categoryID}" value="${category.categoryID}">
+                    <label for="cat_${category.categoryID}">${escapeHtml(category.name)}</label>
+                </div>
+            `).join('');
+            container.innerHTML = checkboxHtml;
+        }
+
+        async function editArticle(articleId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/articles/${articleId}`);
+                if (response.ok) {
+                    const article = await response.json();
+                    showArticleForm(article);
+                } else {
+                    alert('Không thể tải thông tin bài viết.');
+                }
+            } catch (error) {
+                alert('Lỗi khi tải bài viết: ' + error.message);
+            }
+        }
+
+        async function deleteArticle(articleId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('Xóa bài viết thành công!');
+                    loadArticles();
+                } else {
+                    alert('Không thể xóa bài viết.');
+                }
+            } catch (error) {
+                alert('Lỗi khi xóa bài viết: ' + error.message);
+            }
+        }
+
+        // Handle article form submission
+        document.getElementById('articleForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            e.preventDefault();
+            const title = document.getElementById('articleTitle').value.trim();
+            const content = document.getElementById('articleContent').value.trim();
+            const status = document.getElementById('articleStatus').value;
+            const articleId = this.dataset.articleId;
+            const fileInput = document.getElementById('articleImageFile');
+            const statusDiv = document.getElementById('uploadStatus');
+
+            if (!title || !content) {
+                alert('Vui lòng điền đầy đủ tiêu đề và nội dung.');
+                return;
+            }
+
+            // Get selected categories
+            const selectedCategories = [];
+            document.querySelectorAll('#categoriesCheckbox input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedCategories.push(parseInt(checkbox.value));
+            });
+
+            if (selectedCategories.length === 0) {
+                alert('Vui lòng chọn ít nhất một danh mục.');
+                return;
+            }
+
+            let imageUrl = '';
+            if (fileInput.files && fileInput.files.length > 0) {
+                // Upload image to Cloudinary
+                const file = fileInput.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                statusDiv.textContent = 'Uploading image...';
+                try {
+                    const uploadResponse = await fetch(CLOUDINARY_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!uploadResponse.ok) throw new Error('Image upload failed');
+                    const uploadData = await uploadResponse.json();
+                    imageUrl = uploadData.secure_url;
+                    statusDiv.textContent = 'Image uploaded!';
+                } catch (e) {
+                    statusDiv.textContent = 'Image upload failed.';
+                    alert('Image upload failed.');
+                    return;
+                }
+            }
+
+            const articleData = {
+                title: title,
+                content: content,
+                imageUrl: imageUrl,
+                status: status,
+                editorID: currentUser,
+                categoryIDs: selectedCategories
+            };
+
+            try {
+                const url = articleId ? `${API_BASE_URL}/articles/${articleId}` : `${API_BASE_URL}/articles`;
+                const method = articleId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(articleData)
+                });
+
+                if (response.ok) {
+                    alert(articleId ? 'Article updated successfully!' : 'Article created successfully!');
+                    closeArticleForm();
+                    loadArticles();
+                } else {
+                    const errorData = await response.text();
+                    alert('Error: ' + errorData);
+                }
+            } catch (error) {
+                alert('Error: ' + error);
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('articleFormModal');
+            if (event.target === modal) {
+                closeArticleForm();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('vi-VN');
+            } catch {
+                return dateString;
+            }
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+    </script>
+</body>
+</html>

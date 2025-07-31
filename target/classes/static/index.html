@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newspaper            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });ome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        
+        input[type="email"], input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        
+        .error {
+            color: red;
+            margin-top: 12px;
+            text-align: center;
+        }
+        
+        .success {
+            color: green;
+            margin-top: 12px;
+            text-align: center;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 300px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 style="text-align: center; margin-bottom: 24px;">App Đọc Báo</h2>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+            <button type="button" class="btn btn-secondary" onclick="showSignupModal()">Chưa có tài khoản? Đăng ký</button>
+        </form>
+        
+        <div id="message"></div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSignupModal()">&times;</span>
+            <h3>Đăng ký</h3>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="signupName">Tên</label>
+                    <input type="text" id="signupName" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Mật khẩu</label>
+                    <input type="password" id="signupPassword" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Đăng ký</button>
+                <button type="button" class="btn btn-secondary" onclick="closeSignupModal()">Huỷ</button>
+            </form>
+            <div id="signupMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api';
+        
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store user info in localStorage
+                    localStorage.setItem('userID', data.userID);
+                    localStorage.setItem('roleID', data.roleID);
+                    localStorage.setItem('userName', data.name);
+                    
+                    // Redirect to home page
+                    window.location.href = 'home.html';
+                } else {
+                    showMessage(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!', 'error');
+                }
+            } catch (error) {
+                showMessage('Lỗi kết nối. Vui lòng thử lại!', 'error');
+            }
+        });
+        
+        // Signup form handler
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSignupMessage('Tạo tài khoản thành công! Hãy đăng nhập.', 'success');
+                    setTimeout(() => {
+                        closeSignupModal();
+                        document.getElementById('signupForm').reset();
+                    }, 2000);
+                } else {
+                    showSignupMessage(`Lỗi đăng ký: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showSignupMessage('Lỗi kết nối. Vui lòng thử lại!', 'error');
+            }
+        });
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = type;
+        }
+        
+        function showSignupMessage(message, type) {
+            const messageDiv = document.getElementById('signupMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = type;
+        }
+        
+        function showSignupModal() {
+            document.getElementById('signupModal').style.display = 'block';
+        }
+        
+        function closeSignupModal() {
+            document.getElementById('signupModal').style.display = 'none';
+            document.getElementById('signupMessage').textContent = '';
+        }
+    </script>
+</body>
+</html>
