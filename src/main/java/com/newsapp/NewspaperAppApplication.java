@@ -10,3 +10,4 @@ public class NewspaperAppApplication {
         SpringApplication.run(NewspaperAppApplication.class, args);
     }
 }
+//awdaiwdja
