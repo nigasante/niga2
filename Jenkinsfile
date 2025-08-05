@@ -1,52 +1,73 @@
 pipeline {
     agent any
-
+    environment {
+        DOCKERHUB_CREDENTIALS = '8423efb8-fc1e-47df-85fd-906db441dd4d'  // ID của credential
+        IMAGE_NAME = 'nigasante/newspaper-app'             // Tên repository trên Docker Hub
+        DOCKER_TAG = 'latest'                          // Tag của image
+    }
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                echo 'Cloning source code...'
-                git branch: 'main', url: 'https://github.com/nigasante/niga2.git'
+                git 'https://github.com/nigasante/niga2.git'
             }
         }
-
-        stage('Build') {
+        stage('Build JAR') {
             steps {
-                echo 'Building Java project with Maven...'
-                bat 'mvn clean install'
+                sh 'mvn clean package'
             }
         }
-
-        stage('Test') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Running tests...'
-                bat 'mvn test'
-            }
-        }
-
-        stage('Package') {
-            steps {
-                echo 'Packaging application...'
-                bat 'mvn package'
-            }
-        }
-
-        stage('Deploy to Folder') {
-            steps {
-                echo 'Deploying build artifact to IIS folder...'
-                // Update path below based on your WAR/JAR location
-                bat 'xcopy "target\\*.jar" /Y /I "C:\\wwwroot\\myproject"'
-            }
-        }
-
-        stage('Deploy to IIS') {
-            steps {
-                powershell '''
-                Import-Module WebAdministration
-                if (-not (Test-Path IIS:\\Sites\\MyJavaApp)) {
-                    New-Website -Name "MyJavaApp" -Port 85 -PhysicalPath "C:\\wwwroot\\myproject"
+                script {
+                    docker.build("${IMAGE_NAME}:${DOCKER_TAG}")
                 }
-                '''
             }
+        }
+        stage('Login to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        // Đăng nhập vào Docker Hub
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${IMAGE_NAME}:${DOCKER_TAG}").push()
+                    }
+                }
+            }
+        }
+        stage('Stop and Remove Old Container') {
+            steps {
+                script {
+                    sh '''
+                    docker ps -a --filter "name=newspaper-app" --format "{{.Names}}" | grep -q newspaper-app
+                    if [ $? -eq 0 ]; then
+                        docker stop newspaper-app || true
+                        docker rm newspaper-app || true
+                    fi
+                    '''
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    sh 'docker run -d --name newspaper-app -p 8181:8081 --network host -e SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=NewspaperAppDB;encrypt=false;trustServerCertificate=true -e SPRING_DATASOURCE_USERNAME=sa -e SPRING_DATASOURCE_PASSWORD=1234 ${IMAGE_NAME}:${DOCKER_TAG}'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Pipeline completed successfully! Application is running at http://localhost:8081'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }

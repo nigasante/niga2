@@ -1,5 +1,5 @@
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY target/newspaper-app-1.0.0.jar app.jar
+COPY target/newspaper-app-1.0.0.jar newspaper-app-1.0.0.jar
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "newspaper-app-1.0.0.jar"]
