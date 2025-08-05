@@ -1,14 +1,14 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = '8423efb8-fc1e-47df-85fd-906db441dd4d'  // ID của credential
+        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'  // ID của credential Docker Hub
         IMAGE_NAME = 'nigasante/newspaper-app'             // Tên repository trên Docker Hub
         DOCKER_TAG = 'latest'                          // Tag của image
     }
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/nigasante/niga2.git'
+                git branch: 'main', url: 'https://github.com/nigasante/niga2.git'
             }
         }
         stage('Build JAR') {
