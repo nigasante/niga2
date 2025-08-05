@@ -58,21 +58,6 @@ pipeline {
             }
         }
 
-        stage('Stop and Remove Old Container') {
-            steps {
-                script {
-                    // Dừng và xóa container cũ nếu tồn tại
-                    sh '''
-                    docker ps -a --filter name=newspaper-app --format '{{.Names}}' | grep -q newspaper-app
-                    if [ $? -eq 0 ]; then
-                        docker stop newspaper-app || true
-                        docker rm newspaper-app || true
-                    fi
-                    '''
-                }
-            }
-        }
-
         stage('Run Docker Container') {
             steps {
                 script {
