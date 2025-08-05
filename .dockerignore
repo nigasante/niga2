@@ -1,5 +1,6 @@
-bin/ 
-obj/ 
-.vscode/ 
-.vs/ 
-.git/ 
+bin/
+obj/
+.vscode/
+.vs/
+.git/
+!wait-for-it.shdocker-compose down -v

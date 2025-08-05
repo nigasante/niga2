@@ -43,7 +43,7 @@ pipeline {
                 powershell '''
                 Import-Module WebAdministration
                 if (-not (Test-Path IIS:\\Sites\\MyJavaApp)) {
-                    New-Website -Name "MyJavaApp" -Port 81 -PhysicalPath "C:\\wwwroot\\myproject"
+                    New-Website -Name "MyJavaApp" -Port 85 -PhysicalPath "C:\\wwwroot\\myproject"
                 }
                 '''
             }
