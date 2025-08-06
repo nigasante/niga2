@@ -76,7 +76,7 @@ pipeline {
                     docker run -d --name newspaper-app -p 8181:8081 --network host \
                     -e SPRING_DATASOURCE_URL="jdbc:sqlserver://host.docker.internal:1433;databaseName=NewspaperAppDB;encrypt=false;trustServerCertificate=true" \
                     -e SPRING_DATASOURCE_USERNAME=sa \
-                    -e SPRING_DATASOURCE_PASSWORD=1234 \
+                    -e SPRING_DATASOURCE_PASSWORD=L@mkhoa123 \
                     ${IMAGE_NAME}:${DOCKER_TAG}
                     '''
                 }
