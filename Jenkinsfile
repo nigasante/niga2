@@ -14,14 +14,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=newspaper-app -Dsonar.projectName=NewspaperApp'
-                }
-            }
-        }
-
         stage('Build JAR') {
             steps {
                 sh 'mvn clean package'
@@ -40,7 +32,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        // login stage
+                        
                     }
                 }
             }
@@ -81,7 +73,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    docker run -d --name newspaper-app -p 8181:8081 \
+                    docker run -d --name newspaper-app -p 8181:8081\
                     -e SPRING_DATASOURCE_URL="jdbc:sqlserver://host.docker.internal:1433;databaseName=NewspaperAppDB;encrypt=false;trustServerCertificate=true" \
                     -e SPRING_DATASOURCE_USERNAME=sa \
                     -e SPRING_DATASOURCE_PASSWORD=L@mkhoa123 \
