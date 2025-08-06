@@ -1,4 +1,29 @@
+version: '3.8'
+
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=L@mkhoa123
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+
+  sonarqube:
+    image: sonarqube:latest
+    ports:
+      - "9000:9000"
+    environment:
+      - sonar.jdbc.url=jdbc:sqlserver://sqlserver:1433;databaseName=NewspaperAppDB;encrypt=false;trustServerCertificate=true
+      - sonar.jdbc.username=sa
+      - sonar.jdbc.password=L@mkhoa123
+    networks:
+      - app-network
+    depends_on:
+      - sqlserver
+
   springboot-app:
     build:
       context: .
@@ -6,11 +31,13 @@ services:
     ports:
       - "8181:8081"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal:1433;databaseName=NewspaperAppDB;encrypt=false;trustServerCertificate=true
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver:1433;databaseName=NewspaperAppDB;encrypt=false;trustServerCertificate=true
       - SPRING_DATASOURCE_USERNAME=sa
       - SPRING_DATASOURCE_PASSWORD=L@mkhoa123
     networks:
       - app-network
+    depends_on:
+      - sqlserver
 
 networks:
   app-network:
