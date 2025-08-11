@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Newspaper App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,25 +14,41 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
             line-height: 1.6;
+            margin: 0;
+            background-image: url('https://wallpapers.com/images/high/newspaper-aesthetic-flower-stickers-og9dv8rzr3xa82ju.webp');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .top-bar {
+            background: #2196F3;
+            color: white;
+            padding: 15px 30px;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 20px auto;
+            padding: 0 20px;
         }
         
         .header {
-            background: #2196F3;
-            color: white;
-            padding: 20px;
             margin-bottom: 20px;
-            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 10px 0;
         }
         
         .btn {
@@ -42,11 +59,20 @@
             font-size: 14px;
             text-decoration: none;
             display: inline-block;
+            min-width: 150px;
+            text-align: center;
+            margin: 0 10px;
         }
         
         .btn-primary {
             background: #4CAF50;
             color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
         
         .btn-secondary {
@@ -74,10 +100,19 @@
         }
         
         .article-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.95);
         }
         
         .article-header {
@@ -231,13 +266,27 @@
     </style>
 </head>
 <body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div style="display: flex; align-items: center;">
+            <span class="material-icons" style="margin-right: 10px;">admin_panel_settings</span>
+            <h2>Manage Articles</h2>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="showArticleForm()">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">add</span>
+                Add Article
+            </button>
+            <a href="home.html" class="btn btn-secondary">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 5px;">home</span>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>Manage Articles</h1>
-            <div>
-                <button class="btn btn-primary" onclick="showArticleForm()">+ Add Article</button>
-                <a href="home.html" class="btn btn-secondary">← Back to Home</a>
-            </div>
+            <h3>Articles List</h3>
         </div>
         
         <div id="articlesContainer" class="loading">Loading...</div>
@@ -279,7 +328,7 @@
                     <div class="form-group">
                         <label class="form-label">Categories *</label>
                         <div id="categoriesCheckbox" class="checkbox-group">
-                            <!-- Categories will be loaded here -->
+                            <!-- Categories will be loaded here as radio buttons -->
                         </div>
                     </div>
                     
@@ -387,11 +436,22 @@
                 document.getElementById('articleTitle').value = article.title;
                 document.getElementById('articleContent').value = article.content;
                 document.getElementById('articleStatus').value = article.status;
-                document.getElementById('articleForm').dataset.articleId = article.articleID;
+                const form = document.getElementById('articleForm');
+                form.dataset.articleId = article.articleID;
+                // Store current image and category for update
+                form.dataset.currentImageUrl = article.imageUrl || '';
+                if (article.categoryIDs && article.categoryIDs.length > 0) {
+                    form.dataset.currentCategoryId = article.categoryIDs[0];
+                } else {
+                    delete form.dataset.currentCategoryId;
+                }
             } else {
                 title.textContent = 'Add New Article';
                 submitBtn.textContent = 'Create';
-                delete document.getElementById('articleForm').dataset.articleId;
+                const form = document.getElementById('articleForm');
+                delete form.dataset.articleId;
+                delete form.dataset.currentImageUrl;
+                delete form.dataset.currentCategoryId;
             }
             
             loadCategoriesForForm();
@@ -410,13 +470,19 @@
                 return;
             }
             
-            const checkboxHtml = categories.map(category => `
+            const form = document.getElementById('articleForm');
+            const radioHtml = categories.map(category => `
                 <div class="checkbox-item">
-                    <input type="checkbox" id="cat_${category.categoryID}" value="${category.categoryID}">
+                    <input type="radio" name="categoryRadio" id="cat_${category.categoryID}" value="${category.categoryID}">
                     <label for="cat_${category.categoryID}">${escapeHtml(category.name)}</label>
                 </div>
             `).join('');
-            container.innerHTML = checkboxHtml;
+            container.innerHTML = radioHtml;
+            // If editing, pre-select the current category
+            if (form.dataset.currentCategoryId) {
+                const radio = document.getElementById('cat_' + form.dataset.currentCategoryId);
+                if (radio) radio.checked = true;
+            }
         }
 
         async function editArticle(articleId) {
@@ -470,16 +536,13 @@
                 return;
             }
 
-            // Get selected categories
-            const selectedCategories = [];
-            document.querySelectorAll('#categoriesCheckbox input[type="checkbox"]:checked').forEach(checkbox => {
-                selectedCategories.push(parseInt(checkbox.value));
-            });
-
-            if (selectedCategories.length === 0) {
-                alert('Vui lòng chọn ít nhất một danh mục.');
+            // Get selected category (radio)
+            const selectedRadio = document.querySelector('#categoriesCheckbox input[type="radio"]:checked');
+            if (!selectedRadio) {
+                alert('Vui lòng chọn một danh mục.');
                 return;
             }
+            const selectedCategoryId = parseInt(selectedRadio.value);
 
             let imageUrl = '';
             if (fileInput.files && fileInput.files.length > 0) {
@@ -503,6 +566,9 @@
                     alert('Image upload failed.');
                     return;
                 }
+            } else if (articleId && this.dataset.currentImageUrl) {
+                // If updating and no new image, keep current image
+                imageUrl = this.dataset.currentImageUrl;
             }
 
             const articleData = {
@@ -511,7 +577,7 @@
                 imageUrl: imageUrl,
                 status: status,
                 editorID: currentUser,
-                categoryIDs: selectedCategories
+                categoryIDs: [selectedCategoryId]
             };
 
             try {
