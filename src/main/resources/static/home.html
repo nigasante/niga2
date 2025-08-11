@@ -108,77 +108,108 @@
         
         /* Top Bar */
         .top-bar {
-            background: #2196F3;
-            color: white;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-height: 60px;
-            position: relative;
-            z-index: 10;
-        }
-        .top-bar-content {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-        .search-bar {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 2px 8px rgba(33,150,243,0.10);
-            display: flex;
-            align-items: center;
-            padding: 0 18px;
-            border: 1.5px solid #2196F3;
-            transition: box-shadow 0.2s;
-            margin-left: 24px;
-        }
-        .search-bar:focus-within {
-            box-shadow: 0 4px 16px rgba(33,150,243,0.18);
-            border-color: #1976D2;
-        }
-        .search-bar input {
-            border: none;
-            outline: none;
-            background: transparent;
-            font-size: 16px;
-            padding: 12px 0;
-            width: 100%;
-            color: #222;
-        }
-        .search-bar .material-icons {
-            color: #2196F3;
-            margin-right: 8px;
-            font-size: 22px;
-        }
-        @media (max-width: 900px) {
-            .search-bar {
-                max-width: 200px;
-                margin-left: 10px;
-            }
-            .page-title {
-                font-size: 17px;
-            }
-        }
-        @media (max-width: 600px) {
-            .top-bar {
-                flex-direction: column;
-                align-items: stretch;
-                padding: 10px 8px;
-                min-height: unset;
-            }
-            .top-bar-content {
-                margin-bottom: 8px;
-            }
-            .search-bar {
-                margin-left: 0;
-                max-width: 100%;
-            }
-        }
-        
+    background: #2196F3;
+    color: white;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 60px;
+    position: relative;
+    z-index: 10;
+    justify-content: center; /* Thêm dòng này để căn giữa nội dung */
+}
+.top-bar-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: flex-start;
+}
+.search-bar {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(33,150,243,0.10);
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border: 1.5px solid #2196F3;
+    transition: box-shadow 0.2s;
+    margin-left: 0; /* Đổi từ 24px thành 0 để không bị lệch phải */
+}
+@media (max-width: 900px) {
+    .search-bar {
+        max-width: 200px;
+        margin-left: 0;
+    }
+}
+@media (max-width: 600px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 8px;
+        min-height: unset;
+    }
+    .top-bar-content {
+        margin-bottom: 8px;
+    }
+    .search-bar {
+        margin-left: 0;
+        max-width: 100%;
+    }
+}.top-bar {
+    background: #2196F3;
+    color: white;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 60px;
+    position: relative;
+    z-index: 10;
+    justify-content: center; /* Thêm dòng này để căn giữa nội dung */
+}
+.top-bar-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: flex-start;
+}
+.search-bar {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(33,150,243,0.10);
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border: 1.5px solid #2196F3;
+    transition: box-shadow 0.2s;
+    margin-left: 0; /* Đổi từ 24px thành 0 để không bị lệch phải */
+}
+@media (max-width: 900px) {
+    .search-bar {
+        max-width: 200px;
+        margin-left: 0;
+    }
+}
+@media (max-width: 600px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 8px;
+        min-height: unset;
+    }
+    .top-bar-content {
+        margin-bottom: 8px;
+    }
+    .search-bar {
+        margin-left: 0;
+        max-width: 100%;
+    }
+}
         .menu-btn {
             background: none;
             border: none;
